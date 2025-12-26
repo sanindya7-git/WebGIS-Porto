@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+
+    
+        <label for="nama">Nama</label>
+        <input id="nama" name="nama" type="text" placeholder="Masukkan nama Anda"/>
+        <br/>
+        <br/>
+
+        <label for="email">Email</label>
+          <input id="email" name="email" type="email" placeholder="Masukkan email Anda"/>
+            <br/>
+        <br/>
+        <label for="kritik">Kritik & Saran</label>
+        <br/>
+        <textarea id="kritik" name="kritik" placeholder="Masukkan kritik atau saran Anda"></textarea>
+        <br/>
+        <br/>
+        <button  onclick="onSubmit()" >Submit</button>
+
+        <table>
+            <thead> 
+                <tr>
+                    <th> Nama</th>
+                    <th> Email</th>
+                    <th> Kritik dan Saran</th>
+                </tr>
+
+            </thead>
+            <tbody id="table-body">
+
+
+            </tbody>
+        </table>
+    
+
+   
+    <script>
+      
+       function onSubmit(){
+        const name = document.getElementById("nama").value
+        const email= document.getElementById("email").value
+        const kritik_saran = document.getElementById("kritik").value
+
+        if(name.length>0 && email.length>0 && kritik_saran.length>0){
+            postSaran(name, email, kritik_saran)
+        }else{
+
+            alert("data jangan kosong!")
+
+        }
+
+       } 
+
+       function postSaran(name, email, kritik_saran){ 
+        console.log(name, email, kritik_saran)
+        fetch("https://68de0db2d7b591b4b78e40ed.mockapi.io/WebGIS/KritikSaran/v1", {
+            method:"POST", 
+            headers:{"Content-Type": "application/json"}, 
+            body:JSON.stringify({name, email, kritik_saran})
+        })
+        .then(response=> response.json())
+        .then(()=>{ getData()})
+        .catch(error=> console.log(error))
+       }
+        
+       function getData(){
+        
+        const tableBody = document.getElementById("table-body")
+        tableBody.innerHTML= ''
+         fetch("https://68de0db2d7b591b4b78e40ed.mockapi.io/WebGIS/KritikSaran/v1", {
+            method:"GET", 
+            headers:{"Content-Type": "application/json"}, 
+        })
+        .then(response=> response.json())
+        .then((data)=> 
+    
+            data.forEach(data=> {
+                const row = document.createElement("tr")
+                const nameCell = document.createElement("td")
+           
+                nameCell.textContent = data.name
+                const emailCell = document.createElement("td")
+                emailCell.textContent = data.email
+                const kritikCell = document.createElement("td")
+                kritikCell.textContent = data.kritik_saran
+
+                row.appendChild(nameCell)
+                row.appendChild(emailCell)
+                row.appendChild(kritikCell)
+                tableBody.appendChild(row)
+                
+
+            }
+
+            )
+    )
+        .catch(error=> console.log(error))
+       }
+      
+       getData()
+    </script>
+</body>
+</html>

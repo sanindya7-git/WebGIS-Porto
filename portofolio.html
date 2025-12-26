@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>WebGIS – Portofolio</title>
+
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <style>
+    html { font-size: 90%; } 
+    body { font-family: 'Poppins', sans-serif; }
+  </style>
+</head>
+<body class="bg-[#fff9f0] text-gray-800 flex flex-col min-h-screen">
+
+  <!-- Navbar -->
+  <nav class="bg-[#415B05] p-3 shadow-md">
+    <div class="container mx-auto flex justify-between items-center">
+      <div class="text-white font-bold text-base">WebGIS</div>
+      <div class="space-x-4 text-sm">
+        <a href="index.html" class="text-white hover:text-[#FF99DF]">Home</a>
+        <a href="mappage.html" class="text-white hover:text-[#FF99DF]">Map</a>
+        <a href="portofolio.html" class="text-white hover:text-[#FF99DF]">Portofolio</a>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Header -->
+    <header class="py-6 bg-gradient-to-r from-[#FF99DF] to-[#415B05] text-white">
+    <div class="container mx-auto flex items-center justify-center gap-5">
+      <img src="assets/logo.png" class="w-[70px] h-auto">
+      <div class="flex flex-col justify-center text-left">
+        <h1 class="text-2xl md:text-3xl font-extrabold">Portofolio</h1>
+        <p class="mt-1 text-base">Profil, pengalaman, dan karya saya</p>
+      </div>
+    </div>
+  </header>
+
+  <!-- Konten -->
+  <main class="container mx-auto px-4 py-8 flex-grow space-y-8">
+
+    <!-- Profil / Tentang Saya -->
+    <section class="bg-white rounded-xl shadow p-4 border border-[#415B05] flex flex-col md:flex-row items-center md:items-start gap-4">
+      <img src="assets/Salsabila Anindya_Foto Formal.jpg" alt="Foto Profil" class="w-36 h-36 rounded-lg object-cover shadow">
+      <div>
+        <h2 class="text-xl md:text-2xl font-bold text-[#415B05] mb-2">Salsabila Anindya | Urban & Regional Planner</h2>
+        <p class="text-gray-700 mb-3 text-sm md:text-base">
+          Urban and regional planner dengan pengalaman dalam analisis spasial, pemetaan risiko, dan koordinasi multi-stakeholder. 
+          Terampil menggunakan <i>ArcGIS, QGIS, dan Microsoft Office</i> untuk solusi berbasis data yang mendukung pengambilan keputusan strategis.  
+          Berpengalaman menangani proyek pemerintah, lembaga riset, dan konsultan swasta, khususnya perencanaan wilayah, pemetaan infrastruktur, dan pengembangan sistem informasi spasial.
+        </p>
+        <div class="flex flex-wrap gap-3 text-xs md:text-sm">
+          <span class="px-2 py-1 bg-[#F9EEDC] rounded-md shadow">ArcGIS</span>
+          <span class="px-2 py-1 bg-[#F9EEDC] rounded-md shadow">QGIS</span>
+          <span class="px-2 py-1 bg-[#F9EEDC] rounded-md shadow">Spatial Analysis</span>
+          <span class="px-2 py-1 bg-[#F9EEDC] rounded-md shadow">Urban Planning</span>
+          <span class="px-2 py-1 bg-[#F9EEDC] rounded-md shadow">Risk Mapping</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- Pendidikan -->
+    <section class="bg-white rounded-xl shadow p-4 border border-[#415B05]">
+      <h2 class="text-xl md:text-2xl font-semibold mb-2 text-[#415B05]">Latar Belakang Pendidikan</h2>
+      <p class="text-sm md:text-base">S1 Perencanaan Wilayah dan Kota, Universitas Brawijaya</p>
+      <p class="text-sm md:text-base">GPA: 3.75/4.00 (Cumlaude)</p>
+    </section>
+
+    <!-- Karier -->
+    <section class="bg-white rounded-xl shadow p-4 border border-[#415B05]">
+      <h2 class="text-xl md:text-2xl font-semibold mb-2 text-[#415B05]">Latar Belakang Karier</h2>
+      <ul class="list-disc list-inside space-y-1 text-sm md:text-base">
+        <li><strong>Field Facilitation Officer</strong> – Dinas PERKIMHUB Kab. Bangka Tengah (2025)</li>
+        <li><strong>Project Assistant</strong> – DRPM Vocational UB (2024–2025)</li>
+        <li><strong>Research Assistant</strong> – BPPM FTUB Urban Design Planning Lab (2023)</li>
+        <li><strong>Mapping Technician Staff</strong> – Batara Studio (2023)</li>
+        <li><strong>Junior Urban Planning Intern</strong> – PT ARSS Baru (2022)</li>
+      </ul>
+    </section>
+
+    <!-- Project -->
+    <section class="bg-white rounded-xl shadow p-4 border border-[#415B05]">
+      <h2 class="text-xl md:text-2xl font-semibold mb-3 text-[#415B05]">Project</h2>
+      <p class="text-sm md:text-base mb-3">(klik untuk lihat detail project)</p>
+      <div class="flex space-x-4 overflow-x-auto pb-2 snap-x snap-mandatory">
+        <!-- Card 0 -->
+        <div class="min-w-[240px] sm:min-w-[280px] md:min-w-[30%] bg-white border border-[#FF99DF] rounded-lg shadow p-3 snap-start hover:shadow-lg transition">
+          <a href="project.html#mapid">
+            <img src="assets/color palettes.png" alt="mapid" class="rounded-md mb-1 border border-[#415B05]">
+            <p class="text-xs md:text-sm text-[#415B05] hover:text-[#FF99DF] hover:underline">
+              <em>Super Mentee – WebGIS Development (2025)</em>
+            </p>
+            <span class="inline-block mt-1 px-2 py-1 text-xs bg-[#FF99DF] text-white rounded">WebGIS Development</span>
+          </a>
+        </div>
+        <!-- Card 1 -->
+        <div class="min-w-[240px] sm:min-w-[280px] md:min-w-[30%] bg-white border border-[#FF99DF] rounded-lg shadow p-3 snap-start hover:shadow-lg transition">
+          <a href="project.html#perkimhub">
+            <img src="assets/color palettes.png" alt="PERKIMHUB" class="rounded-md mb-1 border border-[#415B05]">
+            <p class="text-xs md:text-sm text-[#415B05] hover:text-[#FF99DF] hover:underline">
+              <em>Field Facilitation Officer – Data Collection RTLH, Bangka Tengah (2025)</em>
+            </p>
+            <span class="inline-block mt-1 px-2 py-1 text-xs bg-[#FF99DF] text-white rounded">Pemetaan Risiko</span>
+          </a>
+        </div>
+        <!-- Card 2 -->
+        <div class="min-w-[240px] sm:min-w-[280px] md:min-w-[30%] bg-white border border-[#FF99DF] rounded-lg shadow p-3 snap-start hover:shadow-lg transition">
+          <a href="project.html#drpm">
+            <img src="assets/color palettes.png" alt="DRPM UB" class="rounded-md mb-1 border border-[#415B05]">
+            <p class="text-xs md:text-sm text-[#415B05] hover:text-[#FF99DF] hover:underline">
+              <em>Project Assistant – Survey of Communication & Informatics Services, Malang (2024)</em>
+            </p>
+            <span class="inline-block mt-1 px-2 py-1 text-xs bg-[#FF99DF] text-white rounded">Survey & Data</span>
+          </a>
+        </div>
+        <!-- Card 3 -->
+        <div class="min-w-[240px] sm:min-w-[280px] md:min-w-[30%] bg-white border border-[#FF99DF] rounded-lg shadow p-3 snap-start hover:shadow-lg transition">
+          <a href="project.html#urbanlab">
+            <img src="assets/color palettes.png" alt="Urban Lab" class="rounded-md mb-1 border border-[#415B05]">
+            <p class="text-xs md:text-sm text-[#415B05] hover:text-[#FF99DF] hover:underline">
+              <em>Research Assistant – Trade & Service Facility Selection, Border Malang (2023)</em>
+            </p>
+            <span class="inline-block mt-1 px-2 py-1 text-xs bg-[#FF99DF] text-white rounded">Riset Perkotaan</span>
+          </a>
+        </div>
+        <!-- Card 4 -->
+        <div class="min-w-[240px] sm:min-w-[280px] md:min-w-[30%] bg-white border border-[#FF99DF] rounded-lg shadow p-3 snap-start hover:shadow-lg transition">
+          <a href="project.html#bangelan">
+            <img src="assets/color palettes.png" alt="Bangelan Map" class="rounded-md mb-1 border border-[#415B05]">
+            <p class="text-xs md:text-sm text-[#415B05] hover:text-[#FF99DF] hover:underline">
+              <em>Administrative Boundaries Mapping – Bangelan Village, Malang (2023)</em>
+            </p>
+            <span class="inline-block mt-1 px-2 py-1 text-xs bg-[#FF99DF] text-white rounded">Pemetaan</span>
+          </a>
+        </div>
+        <!-- Card 5 -->
+        <div class="min-w-[240px] sm:min-w-[280px] md:min-w-[30%] bg-white border border-[#FF99DF] rounded-lg shadow p-3 snap-start hover:shadow-lg transition">
+          <a href="project.html#jombang">
+            <img src="assets/color palettes.png" alt="LP2B Jombang" class="rounded-md mb-1 border border-[#415B05]">
+            <p class="text-xs md:text-sm text-[#415B05] hover:text-[#FF99DF] hover:underline">
+              <em>Mapping Technician Staff – LP2B Determination Map, Jombang (2023)</em>
+            </p>
+            <span class="inline-block mt-1 px-2 py-1 text-xs bg-[#FF99DF] text-white rounded">Pertanian</span>
+          </a>
+        </div>
+        <!-- Card 6 -->
+        <div class="min-w-[240px] sm:min-w-[280px] md:min-w-[30%] bg-white border border-[#FF99DF] rounded-lg shadow p-3 snap-start hover:shadow-lg transition">
+          <a href="project.html#rdtr">
+            <img src="assets/color palettes.png" alt="RDTR Malang" class="rounded-md mb-1 border border-[#415B05]">
+            <p class="text-xs md:text-sm text-[#415B05] hover:text-[#FF99DF] hover:underline">
+              <em>FGD Facilitator – Public Consultation for RDTR Malang City (2023)</em>
+            </p>
+            <span class="inline-block mt-1 px-2 py-1 text-xs bg-[#FF99DF] text-white rounded">Kebijakan</span>
+          </a>
+        </div>
+        <!-- Card 7 -->
+        <div class="min-w-[240px] sm:min-w-[280px] md:min-w-[30%] bg-white border border-[#FF99DF] rounded-lg shadow p-3 snap-start hover:shadow-lg transition">
+          <a href="project.html#kaltara">
+            <img src="assets/color palettes.png" alt="RTRW Kaltara" class="rounded-md mb-1 border border-[#415B05]">
+            <p class="text-xs md:text-sm text-[#415B05] hover:text-[#FF99DF] hover:underline">
+              <em>Junior Urban Planning Intern – RTRW Revision North Kalimantan Province (2022)</em>
+            </p>
+            <span class="inline-block mt-1 px-2 py-1 text-xs bg-[#FF99DF] text-white rounded">RTRW</span>
+          </a>
+        </div>
+        <!-- Card 8 -->
+        <div class="min-w-[240px] sm:min-w-[280px] md:min-w-[30%] bg-white border border-[#FF99DF] rounded-lg shadow p-3 snap-start hover:shadow-lg transition">
+          <a href="project.html#mandiri">
+            <img src="assets/color palettes.png" alt="Mandiri Camp" class="rounded-md mb-1 border border-[#415B05]">
+            <p class="text-xs md:text-sm text-[#415B05] hover:text-[#FF99DF] hover:underline">
+              <em>Finalist – National Camp Business Stream, My Digital Academy by Bank Mandiri (2025)</em>
+            </p>
+            <span class="inline-block mt-1 px-2 py-1 text-xs bg-[#FF99DF] text-white rounded">Business Case</span>
+          </a>
+        </div>
+      </div>
+    </section>
+
+    <!-- Sertifikat & Penghargaan -->
+    <section class="bg-white rounded-xl shadow p-4 border border-[#415B05]">
+      <h2 class="text-xl md:text-2xl font-semibold mb-3 text-[#415B05]">Sertifikat & Penghargaan</h2>
+      <div class="flex space-x-4 overflow-x-auto pb-2 snap-x snap-mandatory">
+        <!-- Sertifikat 1 s.d. 9 -->
+        <div class="min-w-[240px] sm:min-w-[280px] md:min-w-[30%] bg-white border border-[#FF99DF] rounded-lg shadow p-3 snap-start hover:shadow-lg transition">
+          <img src="assets/mapid.png" alt="Finalist National Camp" class="rounded-md mb-1 border border-[#415B05]">
+          <p class="text-xs md:text-sm text-[#415B05]"><em>Super Mentee – WebGIS Development Bootcamp | Mapid Academy (2025)</em></p>
+          <span class="inline-block mt-1 px-2 py-1 text-xs bg-[#FF99DF] text-white rounded">Bootcamp</span>
+        </div>
+        <div class="min-w-[240px] sm:min-w-[280px] md:min-w-[30%] bg-white border border-[#FF99DF] rounded-lg shadow p-3 snap-start hover:shadow-lg transition">
+          <img src="assets/mda.png" alt="Finalist National Camp" class="rounded-md mb-1 border border-[#415B05]">
+          <p class="text-xs md:text-sm text-[#415B05]"><em>Finalist National Camp – Business Stream | My Digital Academy by Bank Mandiri (2025)</em></p>
+          <span class="inline-block mt-1 px-2 py-1 text-xs bg-[#FF99DF] text-white rounded">Bootcamp</span>
+        </div>
+        <div class="min-w-[240px] sm:min-w-[280px] md:min-w-[30%] bg-white border border-[#FF99DF] rounded-lg shadow p-3 snap-start hover:shadow-lg transition">
+          <img src="assets/bnsp.png" alt="Road Maintenance Practitioner" class="rounded-md mb-1 border border-[#415B05]">
+          <p class="text-xs md:text-sm text-[#415B05]"><em>Road Maintenance Practitioner – BNSP (2025)</em></p>
+          <span class="inline-block mt-1 px-2 py-1 text-xs bg-[#FF99DF] text-white rounded">Profesional</span>
+        </div>
+        <div class="min-w-[240px] sm:min-w-[280px] md:min-w-[30%] bg-white border border-[#FF99DF] rounded-lg shadow p-3 snap-start hover:shadow-lg transition">
+          <img src="assets/ielts.png" alt="IELTS Certificate" class="rounded-md mb-1 border border-[#415B05]">
+          <p class="text-xs md:text-sm text-[#415B05]"><em>IELTS – IDP (2024)</em></p>
+          <span class="inline-block mt-1 px-2 py-1 text-xs bg-[#FF99DF] text-white rounded">Bahasa</span>
+        </div>
+        <div class="min-w-[240px] sm:min-w-[280px] md:min-w-[30%] bg-white border border-[#FF99DF] rounded-lg shadow p-3 snap-start hover:shadow-lg transition">
+          <img src="assets/toefl.png" alt="TOEFL Certificate" class="rounded-md mb-1 border border-[#415B05]">
+          <p class="text-xs md:text-sm text-[#415B05]"><em>TOEFL – Brawijaya Language Center (2024)</em></p>
+          <span class="inline-block mt-1 px-2 py-1 text-xs bg-[#FF99DF] text-white rounded">Bahasa</span>
+        </div>
+        <div class="min-w-[240px] sm:min-w-[280px] md:min-w-[30%] bg-white border border-[#FF99DF] rounded-lg shadow p-3 snap-start hover:shadow-lg transition">
+          <img src="assets/microsoft.png" alt="Microsoft Office" class="rounded-md mb-1 border border-[#415B05]">
+          <p class="text-xs md:text-sm text-[#415B05]"><em>Microsoft Office – Trust Training Partners (2024)</em></p>
+          <span class="inline-block mt-1 px-2 py-1 text-xs bg-[#FF99DF] text-white rounded">Pelatihan</span>
+        </div>
+        <div class="min-w-[240px] sm:min-w-[280px] md:min-w-[30%] bg-white border border-[#FF99DF] rounded-lg shadow p-3 snap-start hover:shadow-lg transition">
+          <img src="assets/dies.png" alt="Community Service" class="rounded-md mb-1 border border-[#415B05]">
+          <p class="text-xs md:text-sm text-[#415B05]"><em>Community Service – Dies Natalis 25th PWK FTUB (2023)</em></p>
+          <span class="inline-block mt-1 px-2 py-1 text-xs bg-[#FF99DF] text-white rounded">Pengabdian</span>
+        </div>
+        <div class="min-w-[240px] sm:min-w-[280px] md:min-w-[30%] bg-white border border-[#FF99DF] rounded-lg shadow p-3 snap-start hover:shadow-lg transition">
+          <img src="assets/sketchup.png" alt="SketchUp Training" class="rounded-md mb-1 border border-[#415B05]">
+          <p class="text-xs md:text-sm text-[#415B05]"><em>SketchUp Training – URP Software Training by HMPWK FTUB (2022)</em></p>
+          <span class="inline-block mt-1 px-2 py-1 text-xs bg-[#FF99DF] text-white rounded">Pelatihan</span>
+        </div>
+        <div class="min-w-[240px] sm:min-w-[280px] md:min-w-[30%] bg-white border border-[#FF99DF] rounded-lg shadow p-3 snap-start hover:shadow-lg transition">
+          <img src="assets/osm.png" alt="OSM Training" class="rounded-md mb-1 border border-[#415B05]">
+          <p class="text-xs md:text-sm text-[#415B05]"><em>OpenStreetMap (OSM) Training – HOT Indonesia (2021)</em></p>
+          <span class="inline-block mt-1 px-2 py-1 text-xs bg-[#FF99DF] text-white rounded">Pelatihan</span>
+        </div>
+        <div class="min-w-[240px] sm:min-w-[280px] md:min-w-[30%] bg-white border border-[#FF99DF] rounded-lg shadow p-3 snap-start hover:shadow-lg transition">
+          <img src="assets/arcgis.png" alt="Basic ArcGIS Training" class="rounded-md mb-1 border border-[#415B05]">
+          <p class="text-xs md:text-sm text-[#415B05]"><em>Basic ArcGIS Training – HMPWK FTUB (2020)</em></p>
+          <span class="inline-block mt-1 px-2 py-1 text-xs bg-[#FF99DF] text-white rounded">Pelatihan</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- Contact -->
+    <section class="bg-white rounded-xl shadow p-4 border border-[#415B05] text-center">
+      <h2 class="text-xl md:text-2xl font-semibold mb-2 text-[#415B05]">Mari Terhubung</h2>
+      <p class="mb-3 text-sm md:text-base">Tertarik bekerja sama atau berdiskusi? Hubungi saya melalui:</p>
+      <div class="flex justify-center gap-4">
+        <a href="mailto:sanindya41@gmail.com" class="bg-[#FF99DF] text-white px-3 py-2 rounded hover:bg-[#2f4303] transition">Email</a>
+        <a href="https://linkedin.com/in/salsabila-anindya/" target="_blank" class="bg-[#FF99DF] text-white px-3 py-2 rounded hover:bg-[#2f4303] transition">LinkedIn</a>
+      </div>
+    </section>
+
+    <!-- Kritik & Saran -->
+    <section id="kritik-saran" class="max-w-4xl mx-auto bg-white rounded-xl shadow p-4 border border-[#415B05]">
+      <h2 class="text-xl md:text-2xl font-semibold mb-3 text-[#415B05] text-center">Kritik & Saran</h2>
+      <p class="mb-3 text-center text-sm md:text-base">Halo! Terima kasih telah mengunjungi halaman ini! Silakan tinggalkan kritik dan saran Anda.</p>
+      <form class="space-y-3 mx-auto">
+        <input type="text" id="nama" placeholder="Nama" class="w-full p-2 border border-gray-300 rounded focus:ring-2 focus:ring-[#415B05]">
+        <input type="email" id="email" placeholder="Email" class="w-full p-2 border border-gray-300 rounded focus:ring-2 focus:ring-[#415B05]">
+        <textarea id="kritik" rows="4" placeholder="Kritik & Saran" class="w-full p-2 border border-gray-300 rounded focus:ring-2 focus:ring-[#415B05]"></textarea>
+        <button type="button" onclick="onSubmit()" class="bg-[#FF99DF] text-white px-3 py-2 rounded block mx-auto hover:bg-[#2f4303] transition">Submit</button>
+      </form>
+      <div class="overflow-x-auto mt-3">
+        <table class="w-full border border-gray-300 rounded">
+          <thead class="bg-[#415B05] text-white text-center text-xs md:text-sm">
+            <tr>
+              <th class="px-2 py-1">Nama</th>
+              <th class="px-2 py-1">Email</th>
+              <th class="px-2 py-1">Kritik & Saran</th>
+            </tr>
+          </thead>
+          <tbody id="table-body" class="text-gray-700 text-center text-xs md:text-sm"></tbody>
+        </table>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Footer -->
+<footer class="bg-[#415B05] text-white text-center py-1 fixed bottom-0 w-full">
+  <p>&copy; 2025 Salsabila Anindya. All rights reserved.</p>
+</footer>
+
+  <script>
+    function onSubmit() {
+      const name = document.getElementById("nama").value
+      const email = document.getElementById("email").value
+      const kritik_saran = document.getElementById("kritik").value
+
+      if(name && email && kritik_saran){
+        postSaran(name, email, kritik_saran)
+      } else {
+        alert("Data jangan kosong!")
+      }
+    }
+
+    function postSaran(name, email, kritik_saran){ 
+      fetch("https://68de0db2d7b591b4b78e40ed.mockapi.io/WebGIS/KritikSaran/v1", {
+          method:"POST", 
+          headers:{"Content-Type": "application/json"}, 
+          body:JSON.stringify({name, email, kritik_saran})
+      })
+      .then(response => response.json())
+      .then(() => getData())
+      .catch(error => console.log(error))
+    }
+
+    function getData(){
+      const tableBody = document.getElementById("table-body")
+      tableBody.innerHTML= ''
+      fetch("https://68de0db2d7b591b4b78e40ed.mockapi.io/WebGIS/KritikSaran/v1")
+      .then(response => response.json())
+      .then(data => {
+        data.forEach(item => {
+          const row = document.createElement("tr")
+          const nameCell = document.createElement("td")
+          nameCell.textContent = item.name
+          const emailCell = document.createElement("td")
+          emailCell.textContent = item.email
+          const kritikCell = document.createElement("td")
+          kritikCell.textContent = item.kritik_saran
+          row.append(nameCell, emailCell, kritikCell)
+          tableBody.appendChild(row)
+        })
+      })
+      .catch(error => console.log(error))
+    }
+
+    getData()
+  </script>
+
+</body>
+</html>

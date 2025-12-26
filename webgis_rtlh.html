@@ -1,0 +1,836 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<title>WebGIS - Persebaran RTLH</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<!-- MapLibre & Geocoder (from test-data) -->
+<link href="https://unpkg.com/maplibre-gl@3.6.2/dist/maplibre-gl.css" rel="stylesheet"/>
+<script src="https://unpkg.com/maplibre-gl@3.6.2/dist/maplibre-gl.js"></script>
+<link href="https://unpkg.com/@maplibre/maplibre-gl-geocoder@1.6.0/dist/maplibre-gl-geocoder.css" rel="stylesheet"/>
+<script src="https://unpkg.com/@maplibre/maplibre-gl-geocoder@1.6.0/dist/maplibre-gl-geocoder.min.js"></script>
+
+<style>
+  /* Base */
+  body { margin:0; padding:0; font-family: Arial, sans-serif; background:#fff; }
+  /* Map now full-width with top offset for navbar */
+  #map { position:absolute; top:50px; left:0; right:0; bottom:0; }
+
+  /* NAVBAR */
+#navbar {
+  position:fixed; top:0; left:0; right:0; height:50px;
+  background:#415B05; color:white; display:flex; align-items:center; gap:12px;
+  padding:6px 12px; z-index:50; box-shadow:0 2px 5px rgba(0,0,0,0.15);
+
+  overflow-x: auto;
+  overflow-y: hidden;
+  white-space: nowrap;
+  -webkit-overflow-scrolling: touch;
+}
+
+#navbar > * {
+  flex-shrink: 0;
+}
+#navbar::-webkit-scrollbar {
+  display: none;
+}
+#navbar {
+  scrollbar-width: none;
+}
+
+
+  #home-link { display:flex; align-items:center; gap:8px; color:inherit; text-decoration:none; }
+  .home-icon { width:28px; height:28px; }
+  .nav-center { flex:1; display:flex; align-items:center; gap:8px; }
+  .search-wrapper { display:flex; align-items:center; gap:8px; }
+  #search-input { width:260px; padding:6px 8px; border-radius:6px; border:none; }
+  #search-btn { padding:6px 10px; border:none; border-radius:6px; background:#FF99DF; color:white; cursor:pointer; }
+
+  /* Toolbar buttons (after search) */
+  .toolbar { display:flex; gap:8px; align-items:center; }
+  .tool-btn {
+    background:#ffffff15; color:white; border:1px solid rgba(255,255,255,0.08);
+    padding:6px 8px; border-radius:6px; cursor:pointer; font-size:13px;
+    display:inline-flex; gap:6px; align-items:center;
+  }
+  .tool-btn.active { background:#f0f0f0; color:#0f172a; }
+
+  /* Floating panels (desktop) (INI REVISI 1)*/
+.floating-panel {
+  position: absolute;
+  top: 100%;
+  z-index: 60;
+  background:#fff;
+  border-radius:8px;
+  box-shadow:0 8px 20px rgba(2,6,23,0.12);
+  min-width:260px;
+  max-width:360px;
+  padding:10px;
+  display:none;
+}
+
+/* DESKTOP legend */
+@media (min-width: 801px){
+  #panel-legend {
+    max-height: 420px; 
+    overflow-y: auto;
+  }
+}
+
+
+  /* Re-use original sidebars content but made panel-friendly */
+  #sidebar-left, #sidebar-right {
+    /* keep in DOM but hidden visually by default (we'll move them into panels on load) */
+    display:block; /* content remains, but panels will position them */
+  }
+
+  /* Inset map */
+  #inset-map { position:fixed; bottom:18px; left:18px; width:160px; height:120px; border:1px solid #e5e7eb; z-index:16; background:#fff; border-radius:6px; overflow:hidden; box-shadow:0 4px 10px rgba(2,6,23,0.08); }
+  #inset-rectangle { position:absolute; border:2px solid rgba(220,40,120,0.95); background:rgba(220,40,120,0.08); pointer-events:none; }
+
+  /* small helpers */
+  .legend-item { margin-bottom:8px; display:flex; align-items:center; gap:8px; font-size:13px; color:#111827; }
+  .legend-swatch { width:16px; height:16px; border-radius:4px; display:inline-block; flex-shrink:0; border:1px solid rgba(0,0,0,0.06); }
+  pre#layer-info { white-space:pre-wrap; background:#f8fafc; padding:8px; border-radius:6px; font-size:13px; color:#111827; max-height:40vh; overflow:auto; }
+
+  /* Mobile adjustments */
+  @media (max-width:800px){
+    #search-input { width:140px; }
+    .floating-panel { left:6px !important; right:6px; top:56px; max-width:unset; min-width:unset;max-height: 20vh;overflow-y: auto; border-radius:6px; }
+    #panel-basemap { top:auto; bottom:70px; max-height: 10vh; }
+    #panel-legend { top:auto; bottom:70px; }
+    .toolbar { gap:6px; }
+    .tool-btn { padding:6px 8px; font-size:12px; }
+    #inset-map {left: 18%;transform: translateX(-50%);bottom: 18px; width: 130px; height: 90px;}
+  }
+
+  /* Small style polish */
+  label { cursor:pointer; font-size:13px; color:#111827; }
+  .muted { font-size:12px; color:#6b7280; }
+
+  /*choro[pleth*/
+  .legend-color.low { background:#f1f5f9; }
+.legend-color.mid { background:#c7d2fe; }
+.legend-color.high { background:#818cf8; }
+.legend-color.veryhigh { background:#4f46e5; }
+
+#choroplethLegend .legend-item {
+  display: flex;
+  align-items: center;
+}
+
+#choroplethLegend .legend-color {
+  width: 16px;          /* SAMA */
+  height: 16px;         /* SAMA */
+  display: inline-block;
+  margin-right: 8px;
+  border-radius: 4px;   /* SAMA */
+  border: 1px solid rgba(0,0,0,0.06);
+  flex-shrink: 0;
+}
+
+
+#panel-layers {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+#panel-layers > label,
+#panel-layers > div {
+  margin-bottom: 6px;
+}
+
+
+#panel-layers label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+
+</style>
+</head>
+<body>
+
+<!-- NAVBAR -->
+<div id="navbar">
+  <a href="index.html" id="home-link">
+    <img src="assets/logo.png" alt="Home" class="home-icon">
+    <h1 style="margin:0;font-size:16px">WebGIS RTLH</h1>
+  </a>
+
+  <div class="nav-center">
+    <div class="search-wrapper">
+      <input id="search-input" placeholder="Cari lokasi (nama jalan, desa, kecamatan...)" />
+      <button id="search-btn">Cari</button>
+    </div>
+
+    <!-- toolbar (new) -->
+    <div class="toolbar" id="toolbar">
+      <button class="tool-btn" id="btn-layers" title="Layer">Layer</button>
+      <button class="tool-btn" id="btn-basemap" title="Basemap">Basemap</button>
+      <button class="tool-btn" id="btn-legend" title="Legenda">Legenda</button>
+    </div>
+  </div>
+
+  <a href="mappage.html" id="back-map-btn" class="btn-back" style="background:#f0f0f0;color:#333;padding:6px 10px;border-radius:6px;text-decoration:none;">Kembali ke Preview</a>
+</div>
+
+<!-- Panels (floating under toolbar) -->
+<div id="panel-layers" class="floating-panel" aria-hidden="true">
+    <h4 style="margin:6px 0 8px 0;font-size:14px;color:#111827">Layer</h4>
+  <!-- We'll move the original sidebar-left here on DOMContentLoaded -->
+</div>
+
+<div id="panel-basemap" class="floating-panel" aria-hidden="true">
+  <h4 style="margin:6px 0 8px 0;font-size:14px;color:#111827">Pilih Basemap</h4>
+  <div id="basemap-controls">
+    <label><input type="radio" name="basemap" value="satellite" checked> Citra Satelit (Mapid)</label><br/>
+    <label><input type="radio" name="basemap" value="osm"> OpenStreetMap</label>
+  </div>
+</div>
+
+<div id="panel-legend" class="floating-panel" aria-hidden="true">
+  <h4 style="margin:6px 0 8px 0;font-size:14px;color:#111827">Legenda</h4>
+  <!-- We'll move the original sidebar-right contents here on DOMContentLoaded -->
+</div>
+
+<!-- ORIGINAL SIDEBARS (kept in DOM for code compatibility; will be moved into panels) -->
+<!-- SIDEBAR KIRI (controls) -->
+<div id="sidebar-left" style="display:none;">
+
+  <label>
+    <input type="checkbox" id="rtlhLayer" checked>
+    Persebaran RTLH
+  </label>
+  <div class="muted" style="margin-left:14px; margin-bottom:8px;"></div>
+
+  <label>
+    <input type="checkbox" id="batasKecLayer" checked>
+    Batas Kecamatan
+  </label>
+ 
+  <label>
+    <input type="checkbox" id="choroplethLayer">
+    Kepadatan RTLH (Choropleth)
+  </label>
+
+  <label>
+    <input type="checkbox" id="polaLayer">
+    Pola Ruang
+  </label>
+</div>
+
+  <h3 style="margin-top:14px;"></h3>
+  <!-- note: basemap radios will be duplicated into panel-basemap on load -->
+  <label style="display:none"><input type="radio" name="basemap" value="satellite" checked> Citra Satelit</label>
+  <label style="display:none"><input type="radio" name="basemap" value="osm"> OpenStreetMap</label>
+</div>
+
+<!-- SIDEBAR KANAN (legend + layer info) -->
+<div id="sidebar-right" style="display:none;">
+  
+
+  <div id="legend-rtlh-section" class="legend-section">
+    <div class="legend-item"><span class="legend-swatch" style="background:#e63946"></span><div>RTLH<div style="font-size:12px;color:#6b7280"></div></div></div>
+  </div>
+
+  <div id="legend-batas-section" class="legend-section">
+    <div class="legend-item"><span class="legend-swatch" style="background:transparent;border:2px dashed #333"></span>Batas Desa</div>
+  </div>
+
+ <div id="choroplethLegend" class="legend-section" style="display:flex;flex-direction:column;gap:6px">
+  <div style="font-size:13px;font-weight:600; margin-bottom:6px;">Kepadatan RTLH</div>
+
+  <div class="legend-item">
+    <span class="legend-color low"></span>
+    <span>0–50 unit/km²</span>
+  </div>
+
+  <div class="legend-item">
+    <span class="legend-color mid"></span>
+    <span>51–150 unit/km²</span>
+  </div>
+
+  <div class="legend-item">
+    <span class="legend-color high"></span>
+    <span>151–300 unit/km²</span>
+  </div>
+
+  <div class="legend-item">
+    <span class="legend-color veryhigh"></span>
+    <span>&gt;300 unit/km²</span>
+  </div>
+
+  
+</div>
+
+
+  <div id="legend-pola-section" class="legend-section">
+    <div style="font-size:13px;font-weight:600;margin-bottom:6px;">Pola Ruang</div>
+    <div id="legend-pola-list" style="display:flex;flex-direction:column;gap:6px"></div>
+  </div>
+
+  <h5 style="margin-top:12px;">Info Layer</h5>
+  <pre id="layer-info">Klik fitur di peta untuk melihat info.</pre>
+</div>
+
+<!-- MAP -->
+<div id="map"></div>
+
+<!-- INSET MAP -->
+<div id="inset-map"><div id="inset-rectangle"></div></div>
+
+<script>
+/* -------------------------
+   Data & logic (mostly unchanged)
+   ------------------------- */
+
+const baseMaps = {
+  satellite: 'https://basemap.mapid.io/styles/satellite/style.json?key=68fb7782eef35f4d32986a7d',
+  osm: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png'
+};
+
+// endpoints unchanged (kept as in original)
+const rtlhPlaceholders = [
+  { id: 'rtlh_pangkalan_baru', label: 'RTLH Kecamatan Pangkalan Baru', url: 'https://geoserver.mapid.io/layers_new/get_layer?api_key=1fb8fddf1269435a8d65d77cdcc56c59&layer_id=69046c28791f7af6dc206479&project_id=69046bfa791f7af6dc20645c' },
+  { id: 'rtlh_sungaiselan', label: 'RTLH Kecamatan Sungaiselan', url: 'https://geoserver.mapid.io/layers_new/get_layer?api_key=1fb8fddf1269435a8d65d77cdcc56c59&layer_id=69047d4fc8804625c6abe641&project_id=69046bfa791f7af6dc20645c' },
+  { id: 'rtlh_simpangkatis', label: 'RTLH Kecamatan Simpangkatis', url: 'https://geoserver.mapid.io/layers_new/get_layer?api_key=1fb8fddf1269435a8d65d77cdcc56c59&layer_id=69047d3dc8804625c6abe4a5&project_id=69046bfa791f7af6dc20645c' },
+  { id: 'rtlh_namang', label: 'RTLH Kecamatan Namang', url: 'https://geoserver.mapid.io/layers_new/get_layer?api_key=1fb8fddf1269435a8d65d77cdcc56c59&layer_id=69047d2ec8804625c6abe1c6&project_id=69046bfa791f7af6dc20645c' },
+  { id: 'rtlh_koba', label: 'RTLH Kecamatan Koba', url: 'https://geoserver.mapid.io/layers_new/get_layer?api_key=1fb8fddf1269435a8d65d77cdcc56c59&layer_id=690479db791f7af6dc2b7c75&project_id=69046bfa791f7af6dc20645c' },
+  { id: 'rtlh_lubuk_besar', label: 'RTLH Kecamatan Lubuk Besar', url: 'https://geoserver.mapid.io/layers_new/get_layer?api_key=1fb8fddf1269435a8d65d77cdcc56c59&layer_id=69047d1e791f7af6dc2bc6ac&project_id=69046bfa791f7af6dc20645c' }
+];
+
+const BATAS_KECAMATAN_URL = 'https://geoserver.mapid.io/layers_new/get_layer?api_key=1fb8fddf1269435a8d65d77cdcc56c59&layer_id=691bfdd39f82d205f5bcb3de&project_id=69046bfa791f7af6dc20645c';
+const POLA_RUANG_URL = 'https://geoserver.mapid.io/layers_new/get_layer?api_key=1fb8fddf1269435a8d65d77cdcc56c59&layer_id=69047601c8804625c6ab00ce&project_id=69046bfa791f7af6dc20645c';
+const POLA_OPACITY = 0.65;
+
+const map = new maplibregl.Map({
+  container: 'map',
+  style: baseMaps.satellite,
+  center: [106.4126, -2.4972],
+  zoom: 10
+});
+map.addControl(new maplibregl.NavigationControl(), 'bottom-right');
+
+const insetMap = new maplibregl.Map({
+  container: 'inset-map',
+  style: {
+    version: 8,
+    sources: { osm: { type:'raster', tiles:[baseMaps.osm], tileSize:256 } },
+    layers: [{ id:'osm', type:'raster', source:'osm' }]
+  },
+  center: [106.4126, -2.4972],
+  zoom: 6,
+  interactive: false
+});
+
+const rect = document.getElementById('inset-rectangle');
+function updateRectangle(){
+  try{
+    const bounds = map.getBounds();
+    const sw = insetMap.project(bounds.getSouthWest());
+    const ne = insetMap.project(bounds.getNorthEast());
+    rect.style.left = Math.max(0, sw.x) + 'px';
+    rect.style.top = Math.max(0, ne.y) + 'px';
+    rect.style.width = Math.max(2, ne.x - sw.x) + 'px';
+    rect.style.height = Math.max(2, sw.y - ne.y) + 'px';
+  }catch(e){}
+}
+map.on('move', () => {
+  insetMap.setCenter(map.getCenter());
+  insetMap.setZoom(Math.max(0, map.getZoom()-4));
+  updateRectangle();
+});
+insetMap.on('load', updateRectangle);
+
+function normalizeKey(k){ return (k||'').toString().trim().toLowerCase(); }
+function firstDefined(obj, keys, fallback='-'){ for(const k of keys) if(obj && (obj[k] !== undefined && obj[k] !== null && obj[k] !== '')) return obj[k]; return fallback; }
+
+const polaColors = {
+  'Badan Air':'#96dbf2','Hutan Lindung':'#325f28','Kawasan Ekosistem Mangrove':'#2d966e',
+  'Kawasan Hutan Adat':'#056928','Kawasan Hutan Produksi Tetap':'#69b437','Kawasan Hutan Produksi yang Dapat Dikonversi':'#9be137',
+  'Kawasan Pariwisata':'#ffa5ff','Kawasan Pelestarian Alam':'#785aff','Kawasan Perdagangan dan Jasa':'#ff4646',
+  'Kawasan Perikanan Budi Daya':'#82b9d2','Kawasan Perkantoran':'#9b9b9b','Kawasan Perkebunan':'#afaf37',
+  'Kawasan Perlindungan Setempat':'#05d7d7','Kawasan Permukiman Perdesaan':'#eb9b3c','Kawasan Permukiman Perkotaan':'#f59b1e',
+  'Kawasan Pertahanan dan Keamanan':'#9b00ff','Kawasan Pertambangan Mineral':'#2d415f','Kawasan Peruntukan Industri':'#690000',
+  'Kawasan Tamanan Pangan':'#c8f546','Suaka Alam':'#323287','Tempat Pemrosesan Akhir':'#ff3769'
+};
+function buildPolaMatchExpr(prop='ORDE02'){
+  const expr = ['match', ['get', prop]];
+  Object.entries(polaColors).forEach(([k,v]) => { expr.push(k, v); });
+  expr.push('#CCCCCC');
+  return expr;
+}
+
+function houseSVGDataURL(color='#e63946', size=36){
+  const svg = `<svg xmlns='http://www.w3.org/2000/svg' width='${size}' height='${size}' viewBox='0 0 24 24'><path fill='${color}' stroke='#222' stroke-width='0.8' d='M12 3l9 8h-3v7a1 1 0 0 1-1 1h-4v-6H11v6H7a1 1 0 0 1-1-1v-7H3z'/></svg>`;
+  return 'data:image/svg+xml;base64,' + btoa(svg);
+}
+function addImageFromDataURL(mapRef, id, dataURL){
+  return new Promise((res, rej) => {
+    const img = new Image(); img.crossOrigin = 'anonymous';
+    img.onload = () => {
+      try {
+        if(mapRef.hasImage && mapRef.hasImage(id)) mapRef.removeImage(id);
+        mapRef.addImage(id, img);
+        res();
+      } catch(err) { rej(err); }
+    };
+    img.onerror = e => rej(e);
+    img.src = dataURL;
+  });
+}
+
+async function fetchGeoJSON(url){
+  const resp = await fetch(url);
+  if(!resp.ok) throw new Error(`${url} -> ${resp.status} ${resp.statusText}`);
+  const j = await resp.json();
+  return j && j.data ? j.data : j;
+}
+
+/* -------------------------
+   Add sources & layers (core unchanged)
+   ------------------------- */
+async function addSourcesAndLayersOnce(){
+  try{
+    const polaResp = await fetchGeoJSON(POLA_RUANG_URL).catch(err => { console.warn('pola fetch failed', err); return { type:'FeatureCollection', features:[] }; });
+    const batasResp = await fetchGeoJSON(BATAS_KECAMATAN_URL).catch(err => { console.warn('batas fetch failed', err); return { type:'FeatureCollection', features:[] }; });
+
+    const rtlhFetches = rtlhPlaceholders.map(p => fetchGeoJSON(p.url).catch(err => { console.warn('rtlh fetch failed', p.url, err); return { type:'FeatureCollection', features:[] }; }));
+    const rtlhResults = await Promise.all(rtlhFetches);
+
+    const combined = { type:'FeatureCollection', features: [] };
+    rtlhResults.forEach((gjson, idx) => {
+      const feats = (gjson && gjson.features) ? gjson.features : [];
+      feats.forEach(f => {
+        const props = f.properties || {};
+        const nama = firstDefined(props, ['NAMA','Nama','nama','name'], '-');
+        const kec = firstDefined(props, ['Kecamatan','kecamatan','KECAMATAN','nama_kecamatan','kec'], rtlhPlaceholders[idx].label.replace(/^RTLH\s*/i,''));
+        const orde02 = firstDefined(props, ['ORDE02','orde02','ORDE','zone','zona'], '-');
+        const status = firstDefined(props, ['Status','status','STATUS'], '-');
+        const ket = firstDefined(props, ['Keterangan','keterangan','ket','note','KET'], '-');
+
+        props._NAMA = nama;
+        props._KECAMATAN = kec;
+        props._ORDE02 = orde02;
+        props._STATUS = status;
+        props._KETERANGAN = ket;
+        props._icon = 'rtlh-house';
+        props._iconColor = '#e63946';
+
+        f.properties = props;
+        combined.features.push(f);
+      });
+    });
+
+    function ensureSource(id, data){
+      if(map.getSource(id)){
+        try{ map.getSource(id).setData(data); } catch(e){ console.warn('setData failed', id, e); }
+      } else {
+        map.addSource(id, { type:'geojson', data });
+      }
+    }
+
+    ensureSource('rtlh', combined);
+    ensureSource('polaRuang', polaResp);
+    ensureSource('batasKecamatan', batasResp);
+
+    map.once('idle', async ()=> {
+      try{ await addImageFromDataURL(map, 'rtlh-house', houseSVGDataURL('#e63946',36)); } catch(e){ console.warn('addImage house', e); }
+
+      if(!map.getLayer('polaRuang-layer')){
+        map.addLayer({
+          id:'polaRuang-layer',
+          type:'fill',
+          source:'polaRuang',
+          paint:{
+            'fill-color': buildPolaMatchExpr('ORDE02'),
+            'fill-opacity': POLA_OPACITY,
+            'fill-outline-color': '#14532d'
+          },
+          layout: { visibility: 'none' }
+        });
+      }
+
+            if(!map.getLayer('choropleth-kecamatan')){
+  map.addLayer({
+    id: 'choropleth-kecamatan',
+    type: 'fill',
+    source: 'batasKecamatan',
+    paint: {
+      'fill-color': [
+        'step',
+        ['get', 'JUMLAH_RTLH'],
+        '#f1f5f9',
+        50, '#c7d2fe',
+        150, '#818cf8',
+        300, '#4f46e5',
+        600, '#312e81'
+      ],
+      'fill-opacity': 0.65
+    },
+    layout: {
+      visibility: 'none'
+    }
+  });
+}
+
+      if(!map.getLayer('rtlh-circle')){
+        map.addLayer({
+          id:'rtlh-circle',
+          type:'circle',
+          source:'rtlh',
+            cluster: true,
+  clusterMaxZoom: 14,
+  clusterRadius: 50,
+          paint:{
+            'circle-radius': 6,
+            'circle-color': ['get','_iconColor'],
+            'circle-stroke-width': 1,
+            'circle-stroke-color': '#fff'
+          }
+        });
+      }
+
+map.addLayer({
+  id:'rtlh-symbol',
+  type:'symbol',
+  source:'rtlh',
+  filter: ['!', ['has', 'point_count']],
+  layout:{
+    'icon-image': ['coalesce', ['get', '_icon'], 'rtlh-house'],
+    'icon-size': 1,
+    'icon-allow-overlap': true,
+    'icon-ignore-placement': true
+  }
+});
+
+      if(!map.getLayer('batas-kecamatan')){
+        map.addLayer({
+          id:'batas-kecamatan',
+          type:'line',
+          source:'batasKecamatan',
+          paint: { 'line-color':'#333333', 'line-width':2, 'line-dasharray':[4,2] },
+          layout: { visibility: 'visible' }
+        });
+      }
+
+
+
+      try{
+        map.setLayoutProperty('rtlh-symbol','visibility', document.getElementById('rtlhLayer').checked ? 'visible' : 'none');
+        map.setLayoutProperty('rtlh-circle','visibility', document.getElementById('rtlhLayer').checked ? 'visible' : 'none');
+        map.setLayoutProperty('batas-kecamatan','visibility', document.getElementById('batasKecLayer').checked ? 'visible' : 'none');
+        map.setLayoutProperty('polaRuang-layer','visibility', document.getElementById('polaLayer').checked ? 'visible' : 'none');
+      }catch(e){}
+
+      map.off('click','rtlh-symbol');
+      map.on('click','rtlh-symbol', e => {
+        const f = e.features && e.features[0]; if(!f) return;
+        const p = f.properties || {};
+        const nama = p._NAMA; const kec = p._KECAMATAN; const orde = p._ORDE02; const status = p._STATUS; const ket = p._KETERANGAN;
+        const html = `<div style="font-size:13px;color:#0f172a"><table><tr><td style="font-weight:600;padding-right:8px">Nama</td><td>${nama}</td></tr>
+          <tr><td style="font-weight:600;padding-right:8px">Kecamatan</td><td>${kec}</td></tr>
+          <tr><td style="font-weight:600;padding-right:8px">Pola Ruang</td><td>${orde}</td></tr>
+          <tr><td style="font-weight:600;padding-right:8px">Status</td><td>${status}</td></tr>
+          <tr><td style="font-weight:600;padding-right:8px">Keterangan</td><td>${ket}</td></tr>
+        </table></div>`;
+        new maplibregl.Popup().setLngLat(e.lngLat).setHTML(html).addTo(map);
+      });
+
+      map.off('click','rtlh-circle');
+      map.on('click','rtlh-circle', e => {
+        const f = e.features && e.features[0]; if(!f) return;
+        const p = f.properties || {};
+        const nama = p._NAMA; const kec = p._KECAMATAN; const orde = p._ORDE02; const status = p._STATUS; const ket = p._KETERANGAN;
+        const html = `<div style="font-size:13px;color:#0f172a"><table><tr><td style="font-weight:600;padding-right:8px">Nama</td><td>${nama}</td></tr>
+          <tr><td style="font-weight:600;padding-right:8px">Kecamatan</td><td>${kec}</td></tr>
+          <tr><td style="font-weight:600;padding-right:8px">Pola Ruang</td><td>${orde}</td></tr>
+          <tr><td style="font-weight:600;padding-right:8px">Status</td><td>${status}</td></tr>
+          <tr><td style="font-weight:600;padding-right:8px">Keterangan</td><td>${ket}</td></tr>
+        </table></div>`;
+        new maplibregl.Popup().setLngLat(e.lngLat).setHTML(html).addTo(map);
+      });
+
+      map.off('click','polaRuang-layer');
+      map.on('click','polaRuang-layer', e => {
+        const props = e.features[0].properties || {};
+        const zona = firstDefined(props, ['ORDE02','orde02','ORDE','zona','name'], '-');
+        const html = `<div style="font-size:13px;color:#0f172a"><strong>Zona:</strong> ${zona}</div>`;
+        new maplibregl.Popup().setLngLat(e.lngLat).setHTML(html).addTo(map);
+      });
+
+      map.off('click','batas-kecamatan');
+      map.on('click','batas-kecamatan', e => {
+        const props = e.features[0].properties || {};
+        const kecName = props.KECAMATAN ?? props.kecamatan ?? "-";
+        const jumlah = props.JUMLAH_RTLH ?? 0;
+        const html = `<div style="font-size:13px;color:#0f172a"><strong>${kecName}</strong><br><strong>Jumlah RTLH:</strong> ${jumlah}</div>`;
+        new maplibregl.Popup().setLngLat(e.lngLat).setHTML(html).addTo(map);
+      });
+
+      ['rtlh-symbol','rtlh-circle','polaRuang-layer','batas-kecamatan'].forEach(layerId => {
+        try{
+          map.on('mouseenter', layerId, ()=> map.getCanvas().style.cursor = 'pointer');
+          map.on('mouseleave', layerId, ()=> map.getCanvas().style.cursor = '');
+        }catch(e){}
+      });
+
+      map.on('click', 'choropleth-kecamatan', (e) => {
+  const props = e.features[0].properties;
+  const nama = props.KECAMATAN;
+  const jumlah = Number(props.JUMLAH_RTLH || 0);
+  const luas = Number(props.LUAS_KM2 || 1);
+  const density = (jumlah / luas).toFixed(2);
+
+  new maplibregl.Popup()
+    .setLngLat(e.lngLat)
+    .setHTML(`
+      <strong>${nama}</strong><br>
+      Jumlah RTLH: <b>${jumlah}</b><br>
+      Kepadatan RTLH: <b>${density}</b> unit/km²
+    `)
+    .addTo(map);
+});
+
+
+      // attach layer controls (these inputs still have same IDs and are present in DOM)
+      const rtlhCb = document.getElementById('rtlhLayer');
+      const batasCb = document.getElementById('batasKecLayer');
+      const polaCb = document.getElementById('polaLayer');
+
+      rtlhCb.onchange = (e) => {
+        const v = e.target.checked ? 'visible' : 'none';
+        if(map.getLayer('rtlh-symbol')) map.setLayoutProperty('rtlh-symbol','visibility', v);
+        if(map.getLayer('rtlh-circle')) map.setLayoutProperty('rtlh-circle','visibility', v);
+        updateLegendVisibility();
+      };
+      batasCb.onchange = (e) => {
+        if(map.getLayer('batas-kecamatan')) map.setLayoutProperty('batas-kecamatan','visibility', e.target.checked ? 'visible' : 'none');
+        updateLegendVisibility();
+      };
+      polaCb.onchange = (e) => {
+        if(map.getLayer('polaRuang-layer')) map.setLayoutProperty('polaRuang-layer','visibility', e.target.checked ? 'visible' : 'none');
+        updateLegendVisibility();
+      };
+
+      try{
+        const bounds = new maplibregl.LngLatBounds();
+        const feats = batasResp.features || [];
+        if(feats.length){
+          feats.forEach(f => {
+            const coords = f.geometry && f.geometry.coordinates;
+            if(!coords) return;
+            (function extendCoords(a){ if(typeof a[0] === 'number' && typeof a[1] === 'number') bounds.extend(a); else a.forEach(extendCoords); })(coords);
+          });
+          if(!bounds.isEmpty()) map.fitBounds(bounds, { padding:40, maxZoom:12 });
+        }
+      }catch(e){ console.warn('fit bounds error', e); }
+
+      updateLegendVisibility();
+    }); // end idle
+  }catch(err){
+    console.error('addSourcesAndLayersOnce error', err);
+  }
+}
+
+/* Legend & UI helpers */
+function buildPolaLegend(){
+  const container = document.getElementById('legend-pola-list');
+  if(!container) return;
+  container.innerHTML = '';
+  Object.entries(polaColors).forEach(([k,color])=>{
+    const div = document.createElement('div');
+    div.className = 'legend-item';
+    div.innerHTML = `<span class="legend-swatch" style="background:${color}; opacity:0.65"></span><div>${k}</div>`;
+    container.appendChild(div);
+  });
+}
+
+function updateLegendVisibility(){
+  const showRtlh = document.getElementById('rtlhLayer').checked;
+  const showBatas = document.getElementById('batasKecLayer').checked;
+  const showPola = document.getElementById('polaLayer').checked;
+  const r = document.getElementById('legend-rtlh-section');
+  const b = document.getElementById('legend-batas-section');
+  const p = document.getElementById('legend-pola-section');
+  if(r) r.style.display = showRtlh ? 'block' : 'none';
+  if(b) b.style.display = showBatas ? 'block' : 'none';
+  if(p) p.style.display = showPola ? 'block' : 'none';
+}
+
+/* Fetch + initial setup on map load */
+map.on('load', () => {
+  buildPolaLegend();
+  updateLegendVisibility();
+
+  const choroplethLegend = document.getElementById('choroplethLegend');
+
+  document.getElementById('choroplethLayer').addEventListener('change', function(e){
+    const isOn = e.target.checked;
+
+    if(map.getLayer('choropleth-kecamatan')){
+      map.setLayoutProperty(
+        'choropleth-kecamatan',
+        'visibility',
+        isOn ? 'visible' : 'none'
+      );
+    }
+
+    choroplethLegend.style.display = isOn ? 'block' : 'none';
+  });
+
+});
+
+/* Basemap switch: radios in panel-basemap */
+document.querySelectorAll('input[name="basemap"]').forEach(r => r.addEventListener('change', (e) => {
+  const v = e.target.value;
+  if (v === 'osm') {
+    map.setStyle({
+      version: 8,
+      sources: { osm: { type:'raster', tiles:[baseMaps.osm], tileSize:256 } },
+      layers: [{ id:'osm', type:'raster', source:'osm' }]
+    });
+  } else {
+    map.setStyle(baseMaps.satellite);
+  }
+}));
+
+/* Search */
+document.getElementById('search-btn').addEventListener('click', async ()=> {
+  const q = document.getElementById('search-input').value;
+  if(!q) { alert('Masukkan lokasi'); return; }
+  try{
+    const res = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(q)}`);
+    const data = await res.json();
+    if(!data || data.length===0){ alert('Lokasi tidak ditemukan'); return; }
+    const lat = data[0].lat; const lon = data[0].lon;
+    map.flyTo({ center:[lon,lat], zoom:15 });
+  }catch(e){
+    console.warn('search error', e); alert('Error saat mencari (lihat console)');
+  }
+});
+
+/* layer-info panel update when clicking features */
+map.on('click', (e) => {
+  const features = map.queryRenderedFeatures(e.point, ['rtlh-symbol','rtlh-circle','batas-kecamatan','polaRuang-layer']);
+  if(features && features.length){
+    const f = features[0];
+    const p = f.properties || {};
+    const info = {
+      Nama: p._NAMA || firstDefined(p, ['NAMA','Nama','nama','name']),
+      Kecamatan: p._KECAMATAN || firstDefined(p, ['Kecamatan','kecamatan','nama_kecamatan']),
+      Pola: p._ORDE02 || firstDefined(p, ['ORDE02','orde02','ORDE']),
+      Status: p._STATUS || firstDefined(p, ['Status','status']),
+      Keterangan: p._KETERANGAN || firstDefined(p, ['Keterangan','keterangan','ket'])
+    };
+    const li = document.getElementById('layer-info');
+    if(li) li.textContent = JSON.stringify(info, null, 2);
+  }
+});
+
+/* build pola legend on DOM ready too */
+document.addEventListener('DOMContentLoaded', ()=> {
+  buildPolaLegend();
+  updateLegendVisibility();
+
+  /* UI: move original sidebars into floating panels (keeps same IDs so script continues to work) */
+  try{
+    const left = document.getElementById('sidebar-left');
+    const right = document.getElementById('sidebar-right');
+    const panelLayers = document.getElementById('panel-layers');
+    const panelLegend = document.getElementById('panel-legend');
+
+    if(left && panelLayers){
+      // move children of sidebar-left into panel-layers (keeps same input IDs)
+      while(left.firstChild) panelLayers.appendChild(left.firstChild);
+      left.remove(); // remove empty container
+    }
+    if(right && panelLegend){
+      while(right.firstChild) panelLegend.appendChild(right.firstChild);
+      right.remove();
+    }
+
+    // ensure basemap radios in panel-basemap reflect actual radios (if any duplication)
+    // (no-op if inputs already present)
+
+  }catch(err){ console.warn('move panels err', err); }
+
+  /* Panel toggle logic */
+  const btnLayers = document.getElementById('btn-layers');
+  const btnBasemap = document.getElementById('btn-basemap');
+  const btnLegend = document.getElementById('btn-legend');
+  const panelL = document.getElementById('panel-layers');
+  const panelB = document.getElementById('panel-basemap');
+  const panelG = document.getElementById('panel-legend');
+
+  function closeAllPanels(){
+    [panelL, panelB, panelG].forEach(p => { if(p) { p.style.display='none'; p.setAttribute('aria-hidden','true'); } });
+    [btnLayers, btnBasemap, btnLegend].forEach(b => { if(b) b.classList.remove('active'); });
+  }
+
+    /*INI REVISI 3*/
+  function togglePanel(panel, btn){
+  if(!panel || !btn) return;
+
+  const isOpen = panel.style.display === 'block';
+  closeAllPanels();
+
+  if(!isOpen){
+    positionPanel(panel, btn);
+    panel.style.display = 'block';
+    panel.setAttribute('aria-hidden','false');
+    btn.classList.add('active');
+  }
+
+    /*INI REVISI 2*/
+    function positionPanel(panel, button) {
+  const btnRect = button.getBoundingClientRect();
+  const navRect = document.getElementById('navbar').getBoundingClientRect();
+
+  panel.style.top = (btnRect.bottom - navRect.top + 6) + 'px';
+  panel.style.left = btnRect.left + 'px';
+}
+
+  }
+
+  btnLayers.addEventListener('click', ()=> togglePanel(panelL, btnLayers));
+  btnBasemap.addEventListener('click', ()=> togglePanel(panelB, btnBasemap));
+  btnLegend.addEventListener('click', ()=> togglePanel(panelG, btnLegend));
+
+  // close panels when clicking on map
+  map.on('click', ()=> closeAllPanels());
+  // close on Escape
+  document.addEventListener('keydown', (e)=> { if(e.key === 'Escape') closeAllPanels(); });
+
+  // touch-friendly: close when tapping outside panels
+  document.addEventListener('click', (ev) => {
+    const target = ev.target;
+    const panels = [panelL, panelB, panelG];
+    const buttons = [btnLayers, btnBasemap, btnLegend];
+    // if click on toolbar btns or inside panels -> ignore
+    if(buttons.some(b => b && b.contains(target))) return;
+    if(panels.some(p => p && p.contains(target))) return;
+    // else close
+    closeAllPanels();
+  }, { capture: true });
+
+}); // end DOMContentLoaded
+
+/* reload style logic detection */
+map.on('idle', () => {
+  if (!map.getSource('rtlh')) {
+    addSourcesAndLayersOnce();
+  }
+});
+
+console.log('WebGIS loaded with toolbar panels. Jika layer kosong: cek CORS / API key MapID.');
+</script>
+</body>
+</html>
